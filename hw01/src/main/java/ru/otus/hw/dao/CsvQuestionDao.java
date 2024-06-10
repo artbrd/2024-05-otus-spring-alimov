@@ -23,26 +23,26 @@ public class CsvQuestionDao implements QuestionDao {
         // https://opencsv.sourceforge.net/#collection_based_bean_fields_one_to_many_mappings
         // Использовать QuestionReadException
         // Про ресурсы: https://mkyong.com/java/java-read-a-file-from-resources-folder/
-        var csvToBean = new CsvToBeanBuilder<QuestionDto>(readToInputStreamReader(fileNameProvider.getTestFileName()))
-                .withType(QuestionDto.class)
-                .withSeparator(';')
-                .withSkipLines(1)
-                .build();
+        try (var inputStreamReader = readToInputStreamReader(fileNameProvider.getTestFileName())) {
+            var csvToBean = new CsvToBeanBuilder<QuestionDto>(inputStreamReader)
+                    .withType(QuestionDto.class)
+                    .withSeparator(';')
+                    .withSkipLines(1)
+                    .build();
 
-        return csvToBean.parse()
-                .stream()
-                .map(QuestionDto::toDomainObject)
-                .toList();
+            return csvToBean.parse()
+                    .stream()
+                    .map(QuestionDto::toDomainObject)
+                    .toList();
+        } catch (IOException e) {
+            throw new QuestionReadException("Error reading file " + fileNameProvider.getTestFileName(), e);
+        }
     }
 
-    private InputStreamReader readToInputStreamReader(String fileName) {
+    private InputStreamReader readToInputStreamReader(String fileName) throws IOException {
         if (StringUtils.isBlank(fileName)) {
             throw new IllegalArgumentException("File name cannot be empty");
         }
-        try {
-            return new InputStreamReader(new ClassPathResource(fileName).getInputStream());
-        } catch (IOException e) {
-            throw new QuestionReadException("Error reading file " + fileName, e);
-        }
+        return new InputStreamReader(new ClassPathResource(fileName).getInputStream());
     }
 }
