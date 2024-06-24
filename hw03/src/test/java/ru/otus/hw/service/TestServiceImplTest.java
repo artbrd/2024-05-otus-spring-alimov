@@ -27,7 +27,7 @@ class TestServiceImplTest {
     private TestServiceImpl testService;
 
     @Mock
-    private IOService ioService;
+    private LocalizedIOService ioService;
 
     @Mock
     private QuestionDao questionDao;
@@ -39,7 +39,7 @@ class TestServiceImplTest {
 
     @Test
     void executePositiveTest() {
-        when(ioService.readIntForRangeWithPrompt(anyInt(), anyInt(), any(), any())).thenReturn(1);
+        when(ioService.readIntForRangeWithPromptLocalized(anyInt(), anyInt(), any(), any())).thenReturn(1);
 
         var testResult = testService.executeTestFor(student);
 
@@ -48,7 +48,7 @@ class TestServiceImplTest {
 
     @Test
     void executeNegativeTest() {
-        when(ioService.readIntForRangeWithPrompt(anyInt(), anyInt(), any(), any())).thenReturn(2);
+        when(ioService.readIntForRangeWithPromptLocalized(anyInt(), anyInt(), any(), any())).thenReturn(2);
 
         var testResult = testService.executeTestFor(student);
 
