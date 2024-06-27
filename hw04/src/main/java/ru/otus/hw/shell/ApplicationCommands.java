@@ -9,9 +9,9 @@ import ru.otus.hw.security.LoginContext;
 import ru.otus.hw.service.StudentService;
 import ru.otus.hw.service.TestRunnerService;
 
-@ShellComponent(value = "Application Events Commands")
+@ShellComponent(value = "Application Commands")
 @RequiredArgsConstructor
-public class ApplicationEventsCommands {
+public class ApplicationCommands {
 
     private final TestRunnerService testRunnerService;
 
@@ -26,7 +26,7 @@ public class ApplicationEventsCommands {
         return String.format("Добро пожаловать: %s", student.getFullName());
     }
 
-    @ShellMethod(value = "Start test", key = {"start"})
+    @ShellMethod(value = "Start test", key = {"s", "start"})
     @ShellMethodAvailability(value = "isPublishEventCommandAvailable")
     public void start() {
         testRunnerService.run();
