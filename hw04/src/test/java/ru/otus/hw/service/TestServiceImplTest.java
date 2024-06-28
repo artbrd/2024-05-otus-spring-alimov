@@ -15,7 +15,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
+@SpringBootTest(classes = {TestServiceImpl.class})
 class TestServiceImplTest {
 
     private final Student student = new Student("Petr", "Petrov");
@@ -23,7 +23,7 @@ class TestServiceImplTest {
     private final List<Question> questions = List.of(new Question("Java is a programming language?", answers));
 
     @Autowired
-    private TestServiceImpl testService;
+    private TestService testService;
 
     @MockBean
     private LocalizedIOService ioService;
