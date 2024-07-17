@@ -13,21 +13,21 @@ import ru.otus.hw.repositories.JpaCommentRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD;
+import static org.springframework.test.annotation.DirtiesContext.MethodMode.BEFORE_METHOD;
 
 @DisplayName("Сервис для работы с комментариями ")
 @DataJpaTest
 @Import({CommentServiceImpl.class, JpaCommentRepository.class, JpaBookRepository.class})
 @Transactional(propagation = Propagation.NEVER)
-@DirtiesContext(classMode = BEFORE_EACH_TEST_METHOD)
 class CommentServiceTest {
 
     @Autowired
-    CommentService commentService;
+    private CommentService commentService;
 
     @DisplayName("должен найти комментарий по id")
+    @DirtiesContext(methodMode = BEFORE_METHOD)
     @Test
-    public void shouldFindCommentById() {
+    void shouldFindCommentById() {
         var actualComment = commentService.findById(1L);
         assertAll(
                 () -> assertThat(actualComment).isPresent(),
@@ -39,7 +39,7 @@ class CommentServiceTest {
 
     @DisplayName("должен найти комментарии по id книги")
     @Test
-    public void shouldFindCommentByBookId() {
+    void shouldFindCommentByBookId() {
         var actualComments = commentService.findAllByBookId(1L);
         assertThat(actualComments)
                 .isNotEmpty()
@@ -49,7 +49,7 @@ class CommentServiceTest {
 
     @DisplayName("должен добавлять новый комментарий")
     @Test
-    public void shouldAddNewComment() {
+    void shouldAddNewComment() {
         var actualComment = commentService.insert("Some comment", 1L);
         var expectedComment = commentService.findById(actualComment.getId());
         assertAll(
@@ -63,7 +63,7 @@ class CommentServiceTest {
 
     @DisplayName("должен обновлять комментарий")
     @Test
-    public void shouldUpdateComment() {
+    void shouldUpdateComment() {
         var comment = commentService.findById(1L);
         var actualComment = commentService.update(comment.get().getId(), "New comment", comment.get().getBook().getId());
         var expectedComment = commentService.findById(1L);
@@ -78,7 +78,7 @@ class CommentServiceTest {
 
     @DisplayName("должен удалять комментарий по id")
     @Test
-    public void shouldDeleteBookById() {
+    void shouldDeleteBookById() {
         commentService.deleteById(1L);
         var actualComment = commentService.findById(1L);
         assertThat(actualComment).isEmpty();

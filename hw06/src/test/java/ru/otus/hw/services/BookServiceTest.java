@@ -1,47 +1,87 @@
 package ru.otus.hw.services;
 
+import org.apache.commons.collections4.ListUtils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.otus.hw.models.Author;
+import ru.otus.hw.models.Book;
 import ru.otus.hw.models.Genre;
 import ru.otus.hw.repositories.JpaAuthorRepository;
 import ru.otus.hw.repositories.JpaBookRepository;
 import ru.otus.hw.repositories.JpaGenreRepository;
 
+import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD;
+import static org.springframework.test.annotation.DirtiesContext.MethodMode.AFTER_METHOD;
 
 @DisplayName("Сервис для работы с книгами ")
 @DataJpaTest
 @Import({BookServiceImpl.class, JpaAuthorRepository.class, JpaGenreRepository.class, JpaBookRepository.class})
 @Transactional(propagation = Propagation.NEVER)
-@DirtiesContext(classMode = BEFORE_EACH_TEST_METHOD)
 class BookServiceTest {
 
     @Autowired
-    BookService bookService;
+    private BookService bookService;
+
+    private List<Author> dbAuthors;
+
+    private List<Genre> dbGenres;
+
+    private List<Book> dbBooks;
+
+    private static List<Author> getDbAuthors() {
+        return IntStream.range(1, 4).boxed()
+                .map(id -> new Author(id, "Author_" + id))
+                .toList();
+    }
+
+    private static List<Genre> getDbGenres() {
+        return IntStream.range(1, 6).boxed()
+                .map(id -> new Genre(id, "Genre_" + id))
+                .toList();
+    }
+
+    private static List<Book> getDbBooks(List<Author> dbAuthors, List<Genre> dbGenres) {
+        var partition = ListUtils.partition(dbGenres, 2);
+        return IntStream.range(1, 4).boxed()
+                .map(id -> new Book(id, "BookTitle_" + id, dbAuthors.get(id - 1), partition.get(id - 1)))
+                .toList();
+    }
+
+    private static List<Book> getDbBooks() {
+        var dbAuthors = getDbAuthors();
+        var dbGenres = getDbGenres();
+        return getDbBooks(dbAuthors, dbGenres);
+    }
+
+    @BeforeEach
+    void setUp() {
+        dbAuthors = getDbAuthors();
+        dbGenres = getDbGenres();
+        dbBooks = getDbBooks(dbAuthors, dbGenres);
+    }
 
     @DisplayName("должен найти книгу по id")
-    @Test
-    void shouldFindBookById() {
-        var actualBook = bookService.findById(1L);
-        assertAll(
-                () -> assertThat(actualBook).isPresent(),
-                () -> assertThat(actualBook.get().getId()).isEqualTo(1L),
-                () -> assertThat(actualBook.get().getTitle()).isEqualTo("BookTitle_1"),
-                () -> assertThat(actualBook.get().getAuthor()).isNotNull(),
-                () -> assertThat(actualBook.get().getAuthor().getId()).isEqualTo(1L),
-                () -> assertThat(actualBook.get().getGenres()).isNotEmpty().hasSize(2)
-        );
+    @ParameterizedTest
+    @MethodSource("getDbBooks")
+    void shouldFindBookById(Book expectedBookDto) {
+        var actualBookDto = bookService.findById(expectedBookDto.getId());
+
+        assertThat(actualBookDto).isPresent()
+                .get()
+                .isEqualTo(expectedBookDto);
     }
 
     @DisplayName("должен найти все книги")
@@ -56,32 +96,33 @@ class BookServiceTest {
     @DisplayName("должен добавлять новую книгу")
     @Test
     void shouldAddNewBook() {
-        var actualBook = bookService.insert("New title", 1L, Set.of(1L));
-        var expectedBook = bookService.findById(actualBook.getId());
+        var expectedBook = new Book(dbBooks.size() + 1, "BookTitle_10",
+                dbAuthors.get(0),
+                List.of(dbGenres.get(0), dbGenres.get(1)));
+        var actualBook = bookService.insert("BookTitle_10", dbAuthors.get(0).getId(),
+                Set.of(dbGenres.get(0).getId(), dbGenres.get(1).getId()));
         assertThat(actualBook)
                 .usingRecursiveComparison()
                 .ignoringExpectedNullFields()
-                .isEqualTo(expectedBook.get());
+                .isEqualTo(expectedBook);
     }
 
     @DisplayName("должен обновлять книгу")
     @Test
     void shouldUpdateBook() {
-        var book = bookService.findById(1L);
-        var genreIds = book.get()
-                .getGenres()
-                .stream()
-                .map(Genre::getId)
-                .collect(Collectors.toSet());
-        var actualBook = bookService.update(book.get().getId(), "New title", book.get().getAuthor().getId(), genreIds);
-        var expectedBook = bookService.findById(1L);
+        var actualBook = bookService.update(1L, "BookTitle_10", dbAuthors.get(0).getId(),
+                Set.of(dbGenres.get(0).getId(), dbGenres.get(1).getId()));
+        var expectedBook = new Book(1L, "BookTitle_10",
+                dbAuthors.get(0),
+                List.of(dbGenres.get(0), dbGenres.get(1)));
         assertThat(actualBook)
                 .usingRecursiveComparison()
                 .ignoringExpectedNullFields()
-                .isEqualTo(expectedBook.get());
+                .isEqualTo(expectedBook);
     }
 
     @DisplayName("должен удалять книгу по id")
+    @DirtiesContext(methodMode = AFTER_METHOD)
     @Test
     void shouldDeleteBookById() {
         bookService.deleteById(1L);
