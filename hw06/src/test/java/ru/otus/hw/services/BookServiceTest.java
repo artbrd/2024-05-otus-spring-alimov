@@ -3,6 +3,7 @@ package ru.otus.hw.services;
 import org.apache.commons.collections4.ListUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -24,7 +25,7 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.annotation.DirtiesContext.MethodMode.AFTER_METHOD;
+import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_CLASS;
 
 @DisplayName("Сервис для работы с книгами ")
 @DataJpaTest
@@ -73,26 +74,6 @@ class BookServiceTest {
         dbBooks = getDbBooks(dbAuthors, dbGenres);
     }
 
-    @DisplayName("должен найти книгу по id")
-    @ParameterizedTest
-    @MethodSource("getDbBooks")
-    void shouldFindBookById(Book expectedBookDto) {
-        var actualBookDto = bookService.findById(expectedBookDto.getId());
-
-        assertThat(actualBookDto).isPresent()
-                .get()
-                .isEqualTo(expectedBookDto);
-    }
-
-    @DisplayName("должен найти все книги")
-    @Test
-    void shouldFindAllBooks() {
-        var actualBooks = bookService.findAll();
-        assertThat(actualBooks)
-                .isNotEmpty()
-                .hasSize(3);
-    }
-
     @DisplayName("должен добавлять новую книгу")
     @Test
     void shouldAddNewBook() {
@@ -122,11 +103,34 @@ class BookServiceTest {
     }
 
     @DisplayName("должен удалять книгу по id")
-    @DirtiesContext(methodMode = AFTER_METHOD)
     @Test
     void shouldDeleteBookById() {
         bookService.deleteById(1L);
         var actualBook = bookService.findById(1L);
         assertThat(actualBook).isEmpty();
+    }
+
+    @Nested
+    @DirtiesContext(classMode = BEFORE_CLASS)
+    class BookServiceFindTest {
+        @DisplayName("должен найти книгу по id")
+        @ParameterizedTest
+        @MethodSource("ru.otus.hw.services.BookServiceTest#getDbBooks")
+        void shouldFindBookById(Book expectedBookDto) {
+            var actualBookDto = bookService.findById(expectedBookDto.getId());
+
+            assertThat(actualBookDto).isPresent()
+                    .get()
+                    .isEqualTo(expectedBookDto);
+        }
+
+        @DisplayName("должен найти все книги")
+        @Test
+        void shouldFindAllBooks() {
+            var actualBooks = bookService.findAll();
+            assertThat(actualBooks)
+                    .isNotEmpty()
+                    .hasSize(3);
+        }
     }
 }

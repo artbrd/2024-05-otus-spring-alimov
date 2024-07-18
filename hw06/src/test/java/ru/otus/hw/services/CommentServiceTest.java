@@ -1,6 +1,7 @@
 package ru.otus.hw.services;
 
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -13,7 +14,7 @@ import ru.otus.hw.repositories.JpaCommentRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.springframework.test.annotation.DirtiesContext.MethodMode.BEFORE_METHOD;
+import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_CLASS;
 
 @DisplayName("Сервис для работы с комментариями ")
 @DataJpaTest
@@ -23,29 +24,6 @@ class CommentServiceTest {
 
     @Autowired
     private CommentService commentService;
-
-    @DisplayName("должен найти комментарий по id")
-    @DirtiesContext(methodMode = BEFORE_METHOD)
-    @Test
-    void shouldFindCommentById() {
-        var actualComment = commentService.findById(1L);
-        assertAll(
-                () -> assertThat(actualComment).isPresent(),
-                () -> assertThat(actualComment.get().getId()).isEqualTo(1L),
-                () -> assertThat(actualComment.get().getBook()).isNotNull(),
-                () -> assertThat(actualComment.get().getBook().getId()).isEqualTo(1L)
-        );
-    }
-
-    @DisplayName("должен найти комментарии по id книги")
-    @Test
-    void shouldFindCommentByBookId() {
-        var actualComments = commentService.findAllByBookId(1L);
-        assertThat(actualComments)
-                .isNotEmpty()
-                .hasSize(3)
-                .allMatch(b -> b.getId() != 0L);
-    }
 
     @DisplayName("должен добавлять новый комментарий")
     @Test
@@ -79,8 +57,35 @@ class CommentServiceTest {
     @DisplayName("должен удалять комментарий по id")
     @Test
     void shouldDeleteBookById() {
-        commentService.deleteById(1L);
-        var actualComment = commentService.findById(1L);
+        commentService.deleteById(2L);
+        var actualComment = commentService.findById(2L);
         assertThat(actualComment).isEmpty();
+    }
+
+    @Nested
+    @DirtiesContext(classMode = BEFORE_CLASS)
+    class CommentServiceFindTest {
+        @DisplayName("должен найти комментарий по id")
+        @Test
+        void shouldFindCommentById() {
+            var actualComment = commentService.findById(1L);
+            assertAll(
+                    () -> assertThat(actualComment).isPresent(),
+                    () -> assertThat(actualComment.get().getId()).isEqualTo(1L),
+                    () -> assertThat(actualComment.get().getBook()).isNotNull(),
+                    () -> assertThat(actualComment.get().getBook().getId()).isEqualTo(1L)
+            );
+        }
+
+        @DisplayName("должен найти комментарии по id книги")
+        @Test
+        void shouldFindCommentByBookId() {
+            var actualComments = commentService.findAllByBookId(1L);
+            assertThat(actualComments)
+                    .isNotEmpty()
+                    .hasSize(3)
+                    .allMatch(b -> b.getId() != 0L);
+        }
+
     }
 }

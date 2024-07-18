@@ -35,7 +35,7 @@ public class JpaBookRepository implements BookRepository {
     public List<Book> findAll() {
         try {
             EntityGraph<?> entityGraph = entityManager.getEntityGraph("book-graph");
-            var query = entityManager.createQuery("SELECT b FROM Book b LEFT JOIN FETCH b.genres", Book.class);
+            var query = entityManager.createQuery("SELECT b FROM Book b", Book.class);
             query.setHint(FETCH.getKey(), entityGraph);
             return query.getResultList();
         } catch (Exception ex) {
