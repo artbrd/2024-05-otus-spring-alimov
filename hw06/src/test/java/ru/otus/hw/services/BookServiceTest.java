@@ -13,6 +13,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.otus.hw.converters.AuthorConverter;
+import ru.otus.hw.converters.BookConverter;
+import ru.otus.hw.converters.GenreConverter;
 import ru.otus.hw.models.Author;
 import ru.otus.hw.models.Book;
 import ru.otus.hw.models.Genre;
@@ -29,7 +32,13 @@ import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFOR
 
 @DisplayName("Сервис для работы с книгами ")
 @DataJpaTest
-@Import({BookServiceImpl.class, JpaAuthorRepository.class, JpaGenreRepository.class, JpaBookRepository.class})
+@Import({BookServiceImpl.class,
+        JpaAuthorRepository.class,
+        JpaGenreRepository.class,
+        JpaBookRepository.class,
+        BookConverter.class,
+        AuthorConverter.class,
+        GenreConverter.class})
 @Transactional(propagation = Propagation.NEVER)
 class BookServiceTest {
 
@@ -121,6 +130,8 @@ class BookServiceTest {
 
             assertThat(actualBookDto).isPresent()
                     .get()
+                    .usingRecursiveComparison()
+                    .ignoringExpectedNullFields()
                     .isEqualTo(expectedBookDto);
         }
 

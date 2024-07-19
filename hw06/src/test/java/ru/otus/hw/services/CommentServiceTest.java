@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.otus.hw.converters.CommentConverter;
 import ru.otus.hw.repositories.JpaBookRepository;
 import ru.otus.hw.repositories.JpaCommentRepository;
 
@@ -18,7 +19,10 @@ import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFOR
 
 @DisplayName("Сервис для работы с комментариями ")
 @DataJpaTest
-@Import({CommentServiceImpl.class, JpaCommentRepository.class, JpaBookRepository.class})
+@Import({CommentServiceImpl.class,
+        JpaCommentRepository.class,
+        JpaBookRepository.class,
+        CommentConverter.class})
 @Transactional(propagation = Propagation.NEVER)
 class CommentServiceTest {
 
@@ -34,8 +38,7 @@ class CommentServiceTest {
                 () -> assertThat(actualComment).isNotNull(),
                 () -> assertThat(expectedComment).isPresent(),
                 () -> assertThat(actualComment.getId()).isEqualTo(expectedComment.get().getId()),
-                () -> assertThat(actualComment.getText()).isEqualTo(expectedComment.get().getText()),
-                () -> assertThat(actualComment.getBook().getId()).isEqualTo(expectedComment.get().getBook().getId())
+                () -> assertThat(actualComment.getText()).isEqualTo(expectedComment.get().getText())
         );
     }
 
@@ -43,13 +46,12 @@ class CommentServiceTest {
     @Test
     void shouldUpdateComment() {
         var comment = commentService.findById(1L);
-        var actualComment = commentService.update(comment.get().getId(), "New comment", comment.get().getBook().getId());
+        var actualComment = commentService.update(comment.get().getId(), "New comment", 1L);
         var expectedComment = commentService.findById(1L);
         assertAll(
                 () -> assertThat(actualComment).isNotNull(),
                 () -> assertThat(expectedComment).isPresent(),
                 () -> assertThat(actualComment.getId()).isEqualTo(expectedComment.get().getId()),
-                () -> assertThat(actualComment.getBook().getId()).isEqualTo(expectedComment.get().getBook().getId()),
                 () -> assertThat(actualComment.getText()).isEqualTo(expectedComment.get().getText())
         );
     }
@@ -71,9 +73,7 @@ class CommentServiceTest {
             var actualComment = commentService.findById(1L);
             assertAll(
                     () -> assertThat(actualComment).isPresent(),
-                    () -> assertThat(actualComment.get().getId()).isEqualTo(1L),
-                    () -> assertThat(actualComment.get().getBook()).isNotNull(),
-                    () -> assertThat(actualComment.get().getBook().getId()).isEqualTo(1L)
+                    () -> assertThat(actualComment.get().getId()).isEqualTo(1L)
             );
         }
 
