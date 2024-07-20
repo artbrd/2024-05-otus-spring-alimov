@@ -18,7 +18,6 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class BookServiceImpl implements BookService {
 
     private final AuthorRepository authorRepository;
@@ -30,11 +29,13 @@ public class BookServiceImpl implements BookService {
     private final BookConverter bookConverter;
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<BookDto> findById(long id) {
         return bookRepository.findById(id).map(bookConverter::toDto);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<BookDto> findAll() {
         return bookRepository.findAll()
                 .stream()

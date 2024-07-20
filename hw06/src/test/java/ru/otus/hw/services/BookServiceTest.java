@@ -16,9 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.otus.hw.converters.AuthorConverter;
 import ru.otus.hw.converters.BookConverter;
 import ru.otus.hw.converters.GenreConverter;
-import ru.otus.hw.models.Author;
-import ru.otus.hw.models.Book;
-import ru.otus.hw.models.Genre;
+import ru.otus.hw.dto.AuthorDto;
+import ru.otus.hw.dto.BookDto;
+import ru.otus.hw.dto.GenreDto;
 import ru.otus.hw.repositories.JpaAuthorRepository;
 import ru.otus.hw.repositories.JpaBookRepository;
 import ru.otus.hw.repositories.JpaGenreRepository;
@@ -45,32 +45,32 @@ class BookServiceTest {
     @Autowired
     private BookService bookService;
 
-    private List<Author> dbAuthors;
+    private List<AuthorDto> dbAuthors;
 
-    private List<Genre> dbGenres;
+    private List<GenreDto> dbGenres;
 
-    private List<Book> dbBooks;
+    private List<BookDto> dbBooks;
 
-    private static List<Author> getDbAuthors() {
+    private static List<AuthorDto> getDbAuthors() {
         return IntStream.range(1, 4).boxed()
-                .map(id -> new Author(id, "Author_" + id))
+                .map(id -> new AuthorDto(id, "Author_" + id))
                 .toList();
     }
 
-    private static List<Genre> getDbGenres() {
+    private static List<GenreDto> getDbGenres() {
         return IntStream.range(1, 6).boxed()
-                .map(id -> new Genre(id, "Genre_" + id))
+                .map(id -> new GenreDto(id, "Genre_" + id))
                 .toList();
     }
 
-    private static List<Book> getDbBooks(List<Author> dbAuthors, List<Genre> dbGenres) {
+    private static List<BookDto> getDbBooks(List<AuthorDto> dbAuthors, List<GenreDto> dbGenres) {
         var partition = ListUtils.partition(dbGenres, 2);
         return IntStream.range(1, 4).boxed()
-                .map(id -> new Book(id, "BookTitle_" + id, dbAuthors.get(id - 1), partition.get(id - 1)))
+                .map(id -> new BookDto(id, "BookTitle_" + id, dbAuthors.get(id - 1), partition.get(id - 1)))
                 .toList();
     }
 
-    private static List<Book> getDbBooks() {
+    private static List<BookDto> getDbBooks() {
         var dbAuthors = getDbAuthors();
         var dbGenres = getDbGenres();
         return getDbBooks(dbAuthors, dbGenres);
@@ -86,7 +86,7 @@ class BookServiceTest {
     @DisplayName("должен добавлять новую книгу")
     @Test
     void shouldAddNewBook() {
-        var expectedBook = new Book(dbBooks.size() + 1, "BookTitle_10",
+        var expectedBook = new BookDto(dbBooks.size() + 1, "BookTitle_10",
                 dbAuthors.get(0),
                 List.of(dbGenres.get(0), dbGenres.get(1)));
         var actualBook = bookService.insert("BookTitle_10", dbAuthors.get(0).getId(),
@@ -102,7 +102,7 @@ class BookServiceTest {
     void shouldUpdateBook() {
         var actualBook = bookService.update(1L, "BookTitle_10", dbAuthors.get(0).getId(),
                 Set.of(dbGenres.get(0).getId(), dbGenres.get(1).getId()));
-        var expectedBook = new Book(1L, "BookTitle_10",
+        var expectedBook = new BookDto(1L, "BookTitle_10",
                 dbAuthors.get(0),
                 List.of(dbGenres.get(0), dbGenres.get(1)));
         assertThat(actualBook)
@@ -125,7 +125,7 @@ class BookServiceTest {
         @DisplayName("должен найти книгу по id")
         @ParameterizedTest
         @MethodSource("ru.otus.hw.services.BookServiceTest#getDbBooks")
-        void shouldFindBookById(Book expectedBookDto) {
+        void shouldFindBookById(BookDto expectedBookDto) {
             var actualBookDto = bookService.findById(expectedBookDto.getId());
 
             assertThat(actualBookDto).isPresent()

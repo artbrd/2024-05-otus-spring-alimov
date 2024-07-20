@@ -11,7 +11,6 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class GenreServiceImpl implements GenreService {
 
     private final GenreRepository genreRepository;
@@ -19,6 +18,7 @@ public class GenreServiceImpl implements GenreService {
     private final GenreConverter genreConverter;
 
     @Override
+    @Transactional(readOnly = true)
     public List<GenreDto> findAll() {
         return genreRepository.findAll()
                 .stream()

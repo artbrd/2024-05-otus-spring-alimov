@@ -15,7 +15,6 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class CommentServiceImpl implements CommentService {
 
     private final CommentRepository commentRepository;
@@ -25,12 +24,14 @@ public class CommentServiceImpl implements CommentService {
     private final CommentConverter commentConverter;
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<CommentDto> findById(long id) {
         return commentRepository.findById(id)
                 .map(commentConverter::toDto);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CommentDto> findAllByBookId(long bookId) {
         return commentRepository.findAllByBookId(bookId)
                 .stream()
