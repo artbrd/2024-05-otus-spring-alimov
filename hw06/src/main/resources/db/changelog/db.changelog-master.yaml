@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/init/schema.sql
+  - include:
+      file: db/changelog/init/data.sql
+  - include:
+      file: db/changelog/patch/hw06/create_table_comments.sql
