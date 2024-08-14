@@ -165,7 +165,7 @@ class BookControllerTest {
     void deleteBook() throws Exception {
         doNothing().when(bookService).deleteById(1L);
 
-        mockMvc.perform(get("/delete/{id}", 1L))
+        mockMvc.perform(post("/delete/{id}", 1L))
                 .andExpect(status().isFound())
                 .andExpect(view().name("redirect:/"));
     }
