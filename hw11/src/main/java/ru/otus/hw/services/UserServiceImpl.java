@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.hw.converters.OtusUserConverter;
-import ru.otus.hw.dto.OtusUserDto;
+import ru.otus.hw.models.OtusUser;
 import ru.otus.hw.repositories.OtusUserRepository;
 
 import java.util.Optional;
@@ -19,8 +19,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional(readOnly = true)
     @Override
-    public Optional<OtusUserDto> findByUsername(String username) {
-        return otusUserRepository.findByUsername(username)
-                .map(otusUserConverter::toDto);
+    public Optional<OtusUser> findByUsername(String username) {
+        return otusUserRepository.findByUsername(username);
     }
 }
