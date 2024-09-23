@@ -67,7 +67,7 @@ public class JobConfig {
     @Bean
     public ItemProcessor<MongoBook, JpaBook> bookProcessor(AuthorTransformService authorTransformService) {
         return (book) -> new JpaBook(0, book.getTitle(),
-                authorTransformService.getAuthors().get(book.getAuthor().getId()));
+                authorTransformService.getAuthor(book.getAuthor().getId()));
     }
 
     @Bean
