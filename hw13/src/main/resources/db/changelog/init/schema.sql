@@ -22,3 +22,9 @@ create table books
     author_id bigint references authors (id) on delete cascade,
     primary key (id)
 );
+
+CREATE SEQUENCE book_id_seq
+    MINVALUE 1
+    MAXVALUE 999999999
+    INCREMENT BY 1
+    START WITH 1000 NOCACHE NOCYCLE;

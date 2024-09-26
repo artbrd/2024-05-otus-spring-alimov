@@ -66,15 +66,15 @@ class JobConfigTest {
 
     private List<JpaAuthor> getExpectedAuthors() {
         return List.of(
-                new JpaAuthor(1003L, "Author_1"),
-                new JpaAuthor(1004L, "Author_2"),
-                new JpaAuthor(1005L, "Author_3"));
+                new JpaAuthor(1000L, "Author_1"),
+                new JpaAuthor(1001L, "Author_2"),
+                new JpaAuthor(1002L, "Author_3"));
     }
 
     private List<JpaBook> getExpectedBooks() {
         return List.of(
-                new JpaBook(1L, "BookTitle_1", new JpaAuthor(1003L, "Author_1")),
-                new JpaBook(2L, "BookTitle_2", new JpaAuthor(1004L, "Author_2")),
-                new JpaBook(3L, "BookTitle_3", new JpaAuthor(10005L, "Author_3")));
+                new JpaBook(1000L, "BookTitle_1", new JpaAuthor(1000L, "Author_1")),
+                new JpaBook(1001L, "BookTitle_2", new JpaAuthor(1001L, "Author_2")),
+                new JpaBook(1002L, "BookTitle_3", new JpaAuthor(1002L, "Author_3")));
     }
 }
