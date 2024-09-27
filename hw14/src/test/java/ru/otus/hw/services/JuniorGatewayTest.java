@@ -23,5 +23,7 @@ class JuniorGatewayTest {
 
         assertThat(actual).isNotEmpty();
         assertThat(actual.size()).isOne();
+        assertThat(actual.get(0)).isNotNull();
+        assertThat(actual.get(0).speedProgramming()).isEqualTo(Speed.FAST);
     }
 }

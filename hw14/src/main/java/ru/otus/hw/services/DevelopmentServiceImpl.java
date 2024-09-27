@@ -27,7 +27,8 @@ public class DevelopmentServiceImpl implements DevelopmentService {
                 junior.experience() + 3,
                 Set.of("Java core", "base sql"),
                 Speed.MEDIUM);
-        log.info("End middle transformation {}", junior.name());
+        log.info("{}", middleDeveloper);
+        log.info("End middle transformation {}", middleDeveloper.name());
         return middleDeveloper;
     }
 
@@ -38,7 +39,8 @@ public class DevelopmentServiceImpl implements DevelopmentService {
                 getHardSkills(middle.hardSkills()),
                 Speed.FAST,
                 randomGenerator.nextBoolean());
-        log.info("End senior transformation {}", middle.name());
+        log.info("{}", seniorDeveloper);
+        log.info("End senior transformation {}", seniorDeveloper.name());
         return seniorDeveloper;
     }
 

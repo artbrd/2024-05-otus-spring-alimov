@@ -10,7 +10,7 @@ import org.springframework.integration.dsl.Pollers;
 import org.springframework.integration.handler.LoggingHandler;
 import org.springframework.integration.scheduling.PollerMetadata;
 import org.springframework.messaging.Message;
-import ru.otus.hw.domain.SeniorDeveloper;
+import ru.otus.hw.domain.JuniorDeveloper;
 import ru.otus.hw.services.DevelopmentService;
 
 @Configuration
@@ -22,7 +22,7 @@ public class IntegrationConfig {
     }
 
     @Bean
-    public MessageChannelSpec<?, ?> middleChannel() {
+    public MessageChannelSpec<?, ?> seniorChannel() {
         return MessageChannels.publishSubscribe();
     }
 
@@ -35,12 +35,11 @@ public class IntegrationConfig {
     public IntegrationFlow developerFlow(DevelopmentService developmentService) {
         return IntegrationFlow.from(juniorChannel())
                 .split()
+                .<JuniorDeveloper>log(LoggingHandler.Level.INFO, "JuniorDeveloper", Message::getPayload)
                 .handle(developmentService, "stepTransformationToMiddle")
-                .<SeniorDeveloper>log(LoggingHandler.Level.INFO, "MiddleDeveloper", Message::getPayload)
                 .handle(developmentService, "stepTransformationToSenior")
-                .<SeniorDeveloper>log(LoggingHandler.Level.INFO, "SeniorDeveloper", Message::getPayload)
                 .aggregate()
-                .channel(middleChannel())
+                .channel(seniorChannel())
                 .get();
     }
 }
