@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: hw15
+  data:
+    rest:
+      base-path: /library
+  datasource:
+    url: jdbc:h2:mem:maindb
+  jpa:
+    open-in-view: false
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+  health:
+    defaults:
+      enabled: true
+
+logging:
+  file:
+    name: hw15.log
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %clr(%-5level) %clr(${PID:-}){magenta} %clr([${spring.application.name:-}]){yellow} --- %clr([%t]){faint} %clr(%logger{25}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:%wEx}"
