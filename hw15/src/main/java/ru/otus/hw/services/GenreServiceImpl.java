@@ -25,4 +25,10 @@ public class GenreServiceImpl implements GenreService {
                 .map(genreConverter::toDto)
                 .toList();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long count() {
+        return genreRepository.count();
+    }
 }

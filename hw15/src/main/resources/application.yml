@@ -20,10 +20,12 @@ management:
   endpoints:
     web:
       exposure:
-        include: "*"
+        include: health, logfile
   endpoint:
     health:
       show-details: always
+    logfile:
+      enabled: true
   health:
     defaults:
       enabled: true

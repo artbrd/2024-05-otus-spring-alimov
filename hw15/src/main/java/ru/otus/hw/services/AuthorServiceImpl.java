@@ -25,4 +25,10 @@ public class AuthorServiceImpl implements AuthorService {
                 .map(authorConverter::toDto)
                 .toList();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long count() {
+        return authorRepository.count();
+    }
 }

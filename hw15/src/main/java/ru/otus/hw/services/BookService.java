@@ -15,4 +15,6 @@ public interface BookService {
     BookDto update(long id, String title, long authorId, long genre);
 
     void deleteById(long id);
+
+    long count();
 }
