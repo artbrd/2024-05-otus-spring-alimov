@@ -1,8 +1,8 @@
 package ru.otus.hw.services;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cloud.client.circuitbreaker.CircuitBreaker;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.hw.converters.AuthorConverter;
@@ -22,13 +22,14 @@ public class AuthorServiceImpl implements AuthorService {
 
     private final OtherLibraryService otherLibraryService;
 
-    private final CircuitBreaker circuitBreaker;
-
     @Override
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "authorBreaker", fallbackMethod = "otherLibraryAuthorsFallbackMethod")
     public List<AuthorDto> findAll() {
-        return circuitBreaker.run(this::getAllAuthor,
-                this::otherLibraryAuthorsFallbackMethod);
+        return authorRepository.findAll()
+                .stream()
+                .map(authorConverter::toDto)
+                .toList();
     }
 
     @Override
@@ -40,12 +41,5 @@ public class AuthorServiceImpl implements AuthorService {
     public List<AuthorDto> otherLibraryAuthorsFallbackMethod(Throwable ex) {
         log.error("List author error", ex);
         return otherLibraryService.getAuthors();
-    }
-
-    private List<AuthorDto> getAllAuthor() {
-        return authorRepository.findAll()
-                .stream()
-                .map(authorConverter::toDto)
-                .toList();
     }
 }

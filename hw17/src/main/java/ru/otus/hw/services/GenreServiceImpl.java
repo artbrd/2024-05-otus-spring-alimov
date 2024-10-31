@@ -1,8 +1,8 @@
 package ru.otus.hw.services;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cloud.client.circuitbreaker.CircuitBreaker;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.hw.converters.GenreConverter;
@@ -22,13 +22,14 @@ public class GenreServiceImpl implements GenreService {
 
     private final OtherLibraryService otherLibraryService;
 
-    private final CircuitBreaker circuitBreaker;
-
     @Override
     @Transactional(readOnly = true)
+    @CircuitBreaker(name = "genreBreaker", fallbackMethod = "otherLibraryGenresFallbackMethod")
     public List<GenreDto> findAll() {
-        return circuitBreaker.run(this::getAllGenre,
-                this::otherLibraryGenresFallbackMethod);
+        return genreRepository.findAll()
+                .stream()
+                .map(genreConverter::toDto)
+                .toList();
     }
 
     @Override
@@ -40,12 +41,5 @@ public class GenreServiceImpl implements GenreService {
     public List<GenreDto> otherLibraryGenresFallbackMethod(Throwable ex) {
         log.error("List genre error", ex);
         return otherLibraryService.getGenres();
-    }
-
-    private List<GenreDto> getAllGenre() {
-        return genreRepository.findAll()
-                .stream()
-                .map(genreConverter::toDto)
-                .toList();
     }
 }
