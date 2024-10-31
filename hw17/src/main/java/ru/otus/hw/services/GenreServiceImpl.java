@@ -27,10 +27,7 @@ public class GenreServiceImpl implements GenreService {
     @Override
     @Transactional(readOnly = true)
     public List<GenreDto> findAll() {
-        return circuitBreaker.run(() -> genreRepository.findAll()
-                        .stream()
-                        .map(genreConverter::toDto)
-                        .toList(),
+        return circuitBreaker.run(this::getAllGenre,
                 this::otherLibraryGenresFallbackMethod);
     }
 
@@ -43,5 +40,12 @@ public class GenreServiceImpl implements GenreService {
     public List<GenreDto> otherLibraryGenresFallbackMethod(Throwable ex) {
         log.error("List genre error", ex);
         return otherLibraryService.getGenres();
+    }
+
+    private List<GenreDto> getAllGenre() {
+        return genreRepository.findAll()
+                .stream()
+                .map(genreConverter::toDto)
+                .toList();
     }
 }

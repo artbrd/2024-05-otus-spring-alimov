@@ -27,10 +27,7 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     @Transactional(readOnly = true)
     public List<AuthorDto> findAll() {
-        return circuitBreaker.run(() -> authorRepository.findAll()
-                        .stream()
-                        .map(authorConverter::toDto)
-                        .toList(),
+        return circuitBreaker.run(this::getAllAuthor,
                 this::otherLibraryAuthorsFallbackMethod);
     }
 
@@ -43,5 +40,12 @@ public class AuthorServiceImpl implements AuthorService {
     public List<AuthorDto> otherLibraryAuthorsFallbackMethod(Throwable ex) {
         log.error("List author error", ex);
         return otherLibraryService.getAuthors();
+    }
+
+    private List<AuthorDto> getAllAuthor() {
+        return authorRepository.findAll()
+                .stream()
+                .map(authorConverter::toDto)
+                .toList();
     }
 }
