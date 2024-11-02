@@ -1,0 +1,52 @@
+spring:
+  application:
+    name: hw17
+  data:
+    rest:
+      base-path: /library
+  datasource:
+    url: jdbc:h2:mem:maindb
+  jpa:
+    open-in-view: false
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        register-health-indicator: true
+        slidingWindowSize: 6
+        failureRateThreshold: 3
+        slowCallDurationThreshold: 3s
+        slowCallRateThreshold: 30
+        waitDurationInOpenState: 3s
+        permittedNumberOfCallsInHalfOpenState: 3
+        minimumNumberOfCalls: 3
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, logfile, prometheus
+  endpoint:
+    health:
+      show-details: always
+    logfile:
+      enabled: true
+  health:
+    circuitbreakers:
+      enabled: true
+    defaults:
+      enabled: true
+
+logging:
+  file:
+    name: hw17.log
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %clr(%-5level) %clr(${PID:-}){magenta} %clr([${spring.application.name:-}]){yellow} --- %clr([%t]){faint} %clr(%logger{25}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:%wEx}"
