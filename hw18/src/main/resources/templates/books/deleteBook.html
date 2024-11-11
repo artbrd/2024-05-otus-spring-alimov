@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Delete book</title>
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+
+        label {
+            display: inline-block;
+            width: 100px;
+        }
+
+        input:read-only {
+            background: lightgray;
+        }
+
+    </style>
+</head>
+<body>
+<script>
+    window.onload = async () => {
+        await deleteBook();
+    }
+
+    async function deleteBook() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const bookId = urlParams.get('id');
+        fetch("/api/v1/books/" + bookId, {
+            method: 'DELETE'
+        })
+            .then(() => {
+                window.location.href = '/';
+            })
+    }
+</script>
+</body>
+</html>

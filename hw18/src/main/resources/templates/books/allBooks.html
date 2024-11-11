@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>List of all book</title>
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+
+        .book {
+            border: 1px solid steelblue;
+            width: 300px;
+            border-collapse: collapse;
+        }
+
+        .book tr td, th {
+            padding: 5px;
+            border: 1px solid steelblue;
+        }
+
+        .book td:last-child, td:first-child {
+            width: 50px;
+        }
+    </style>
+    <script>
+        function createBook(book) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                        <td>${book.id}</td>
+                        <td>${book.title}</td>
+                        <td>${book.author.fullName}</td>
+                        <td>${book.genre.name}</td>
+                        <td>
+                            <a href="/delete?id=${book.id}">Delete</a>
+                            <a href="/edit?id=${book.id}&title=${book.title}&authorId=${book.author.id}&genreId=${book.genre.id}">Edit</a>
+                        </td>
+                    `;
+            return tr;
+        }
+    </script>
+    <script>
+        function getAllBooks() {
+            fetch('/api/v1/books')
+                .then(response => response.json())
+                .then(json => json.forEach(a => document.querySelector('tbody').appendChild(createBook(a))));
+        }
+    </script>
+</head>
+<body onload="getAllBooks()">
+
+<h3>Books:</h3>
+
+<span>
+    <a href="createBook.html" th:href="@{/create}"><button type="button">Add book</button></a>
+</span>
+<br>
+<br>
+
+<table class="book">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Genres</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+<br>
+<br>
+<span>
+    <a href="../authors/allAuthors.html" th:href="@{/authors}"><button type="button">Authors</button></a>
+    <a href="../genres/allGenres.html" th:href="@{/genres}"><button type="button">Genres</button></a>
+</span>
+</body>
+</html>

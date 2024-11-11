@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8"/>
+    <title>List of all persons</title>
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+
+        label {
+            display: inline-block;
+            width: 100px;
+        }
+
+        input:read-only {
+            background: lightgray;
+        }
+
+        .row {
+            margin-top: 10px;
+        }
+    </style>
+    <script>
+        window.onload = async () => {
+            const authorsSelect = document.getElementById("author-list")
+            const authors = await fetchAllAuthors();
+            authors.forEach(author => {
+                authorsSelect.add(new Option(author.fullName, author.id))
+            });
+
+            const genresSelect = document.getElementById("genre-list")
+            const genres = await fetchAllGenres();
+            genres.forEach(genre => {
+                genresSelect.add(new Option(genre.name, genre.id))
+            });
+        }
+
+        async function fetchAllAuthors() {
+            const authorsResponse = await fetch("/api/v1/authors");
+            return await authorsResponse.json();
+        }
+
+        async function fetchAllGenres() {
+            const genresResponse = await fetch("/api/v1/genres");
+            return await genresResponse.json();
+        }
+
+        async function saveBook() {
+            const bookTitle = document.getElementById("title-input")
+            const authorList = document.getElementById("author-list")
+            const genreList = document.getElementById("genre-list")
+            const book = { title: bookTitle.value, author: authorList.value, genre: genreList.value}
+            const response = await fetch("/api/v1/books", {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(book)});
+            const status = response.status
+            if (status === 200) {
+                window.location.href = '/'
+            }
+        }
+    </script>
+</head>
+<body>
+
+<h3>Add Book:</h3>
+
+<form id="create-form" action="createBook.html">
+    <div class="row">
+        <label for="title-input">Title:</label>
+        <input id="title-input" name="title" type="text"/>
+    </div>
+
+    <div class="row">
+        <label for="author-list">Author:</label>
+        <select id="author-list" name="author">
+        </select>
+    </div>
+
+    <div class="row">
+        <label for="genre-list">Genre:</label>
+        <select id="genre-list" name="genre">
+        </select>
+    </div>
+
+    <div class="row">
+        <button type="button" onclick="saveBook()">Save</button>
+        <a href="allBooks.html" th:href="@{/}"><button type="button">Cancel</button></a>
+    </div>
+</form>
+</body>
+</html>
